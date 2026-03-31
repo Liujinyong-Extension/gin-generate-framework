@@ -4,8 +4,11 @@ import (
 	"fmt"
 	"gin-generate-framework/core/global"
 	"os"
+	"reflect"
+	"strings"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -15,6 +18,7 @@ import (
 func Init() {
 	InitViper()
 	InitDatabase()
+	InitValidate()
 }
 func InitViper() {
 	env := os.Getenv("ENV")
@@ -57,4 +61,26 @@ func InitDatabase() {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	fmt.Println(global.GormDB)
+}
+
+func InitValidate() {
+	global.Validate = validator.New()
+	global.Validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
+		// 优先获取 json tag，其次获取 form tag
+		name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+		if name == "-" {
+			return "" // 忽略该字段
+		}
+		if name == "" {
+			name = strings.SplitN(fld.Tag.Get("form"), ",", 2)[0]
+			if name == "-" {
+				return "" // 忽略该字段
+			}
+		}
+		if name != "" {
+			return name
+		}
+		// 如果没有 json 和 form tag，返回字段原名
+		return fld.Name
+	})
 }
