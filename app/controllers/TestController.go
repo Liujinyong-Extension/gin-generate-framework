@@ -33,5 +33,5 @@ func (test TestController) Index(c *gin.Context) {
 	}
 
 	fmt.Println(request)
-	test.SuccessJson(c, 200, "success", request)
+	test.SuccessJson(c, SuccessCode, "success", request)
 }

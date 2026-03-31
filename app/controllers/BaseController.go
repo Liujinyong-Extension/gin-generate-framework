@@ -44,3 +44,6 @@ type IndexRequest struct {
 	PageNum  int `form:"page_num" validate:"required,number,min=1"`
 	PageSize int `form:"page_size" validate:"required,number,min=1"`
 }
+type detailRequest struct {
+	Id int `form:"id" validate:"required,number"`
+}
