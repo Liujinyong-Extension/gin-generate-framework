@@ -3,9 +3,10 @@ package controllers
 import (
 	"fmt"
 	"gin-generate-framework/app/validates"
-	"gin-generate-framework/core/global"
+	"gin-generate-framework/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 type TestController struct {
@@ -31,10 +32,10 @@ func (test TestController) Index(c *gin.Context) {
 			return
 		}
 	}
-	global.Logrus.WithContext(c.Request.Context()).WithFields(map[string]interface{}{
+	utils.Logs(map[string]interface{}{
 		"page_num":  request.PageNum,
 		"page_size": request.PageSize,
-	}).Info("test")
+	}, logrus.InfoLevel, "这是一个测试", c)
 
 	test.SuccessJson(c, SuccessCode, "success", request)
 }
