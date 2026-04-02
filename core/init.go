@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -19,6 +20,7 @@ func Init() {
 	InitViper()
 	InitDatabase()
 	InitValidate()
+	InitLog()
 }
 func InitViper() {
 	env := os.Getenv("ENV")
@@ -83,4 +85,7 @@ func InitValidate() {
 		// 如果没有 json 和 form tag，返回字段原名
 		return fld.Name
 	})
+}
+func InitLog() {
+	logrus.Debug("this is logrus debug")
 }

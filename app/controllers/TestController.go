@@ -22,7 +22,6 @@ func (test TestController) Index(c *gin.Context) {
 		test.ErrorJson(c, ParamError, err.Error())
 		return
 	}
-	fmt.Println(request)
 
 	if errors := validates.ValidateStruct(&request); errors != nil {
 		fmt.Println(errors)
@@ -31,7 +30,5 @@ func (test TestController) Index(c *gin.Context) {
 			return
 		}
 	}
-	panic("adadasda")
-	fmt.Println(request)
 	test.SuccessJson(c, SuccessCode, "success", request)
 }
