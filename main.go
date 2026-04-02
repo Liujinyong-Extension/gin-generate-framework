@@ -9,7 +9,9 @@ import (
 )
 
 func main() {
+	//加载配置
 	core.Init()
+	//加载路由
 	r := router.SetupRouter()
 
 	serverPort := viper.GetInt("server.port")

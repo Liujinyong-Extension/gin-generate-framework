@@ -31,7 +31,7 @@ func (test TestController) Index(c *gin.Context) {
 			return
 		}
 	}
-
+	panic("adadasda")
 	fmt.Println(request)
 	test.SuccessJson(c, SuccessCode, "success", request)
 }
