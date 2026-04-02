@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	"gin-generate-framework/app/validates"
+	"gin-generate-framework/core/global"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,5 +31,10 @@ func (test TestController) Index(c *gin.Context) {
 			return
 		}
 	}
+	global.Logrus.WithContext(c.Request.Context()).WithFields(map[string]interface{}{
+		"page_num":  request.PageNum,
+		"page_size": request.PageSize,
+	}).Info("test")
+
 	test.SuccessJson(c, SuccessCode, "success", request)
 }
