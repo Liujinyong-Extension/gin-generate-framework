@@ -35,7 +35,7 @@ func (test TestController) Index(c *gin.Context) {
 		}
 	}
 	global.Redis.Set(c.Request.Context(), "test", "test", 60*time.Second)
-	time.Sleep(10 * time.Second)
+	//time.Sleep(60 * time.Second)
 	utils.Logs(map[string]interface{}{
 		"page_num":  request.PageNum,
 		"page_size": request.PageSize,

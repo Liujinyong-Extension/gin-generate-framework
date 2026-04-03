@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
@@ -21,6 +22,7 @@ import (
 )
 
 func Init() {
+
 	InitViper()
 	InitDatabase()
 	InitRedis()
@@ -28,9 +30,14 @@ func Init() {
 	InitLog()
 }
 func InitViper() {
-	env := os.Getenv("ENV")
-	if env == "" {
-		env = "local"
+	env := func() string {
+		if e := os.Getenv("ENV"); e != "" {
+			return e
+		}
+		return "local"
+	}()
+	if env == "prod" {
+		gin.SetMode(gin.ReleaseMode)
 	}
 	fmt.Println("当前的环境是:", env)
 	viper.SetConfigName(env)
