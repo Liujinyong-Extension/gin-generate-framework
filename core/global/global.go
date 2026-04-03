@@ -2,6 +2,7 @@ package global
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -18,4 +19,7 @@ var (
 
 	// 访问日志记录器，用于记录HTTP访问日志
 	AccessLog *logrus.Logger
+
+	// Redis实例
+	Redis *redis.Client
 )

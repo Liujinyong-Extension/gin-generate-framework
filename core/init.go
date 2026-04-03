@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"gin-generate-framework/core/global"
 	"io"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -21,6 +23,7 @@ import (
 func Init() {
 	InitViper()
 	InitDatabase()
+	InitRedis()
 	InitValidate()
 	InitLog()
 }
@@ -130,4 +133,16 @@ func (hook *ContextHook) Fire(entry *logrus.Entry) error {
 		}
 	}
 	return nil
+}
+func InitRedis() {
+	global.Redis = redis.NewClient(&redis.Options{
+		Addr:     viper.GetString("redis.host") + ":" + viper.GetString("redis.port"),
+		Password: viper.GetString("redis.password"),
+		DB:       viper.GetInt("redis.db"),
+	})
+	_, err := global.Redis.Ping(context.Background()).Result()
+	if err != nil {
+		fmt.Println("redis connect errer", err)
+
+	}
 }
