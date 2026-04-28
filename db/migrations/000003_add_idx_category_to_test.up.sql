@@ -1,0 +1,1 @@
+ALTER TABLE `gin`.`test` ADD INDEX `idx_category`(`category`);
