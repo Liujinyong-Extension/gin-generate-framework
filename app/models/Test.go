@@ -7,3 +7,7 @@ type Test struct {
 	Score    int    `gorm:"default:0;comment:分数"`
 	Category string `gorm:"type:enum('apple','samsang','oppo');not null;default:apple;comment:分类 苹果:apple  三星:samsang 步步高:oppo"`
 }
+
+func (test Test) TableName() string {
+	return "test"
+}

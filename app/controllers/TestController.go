@@ -2,10 +2,9 @@ package controllers
 
 import (
 	"fmt"
+	"gin-generate-framework/app/models"
 	"gin-generate-framework/app/validates"
-	"gin-generate-framework/core/global"
 	"gin-generate-framework/utils"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -34,12 +33,22 @@ func (test TestController) Index(c *gin.Context) {
 			return
 		}
 	}
-	global.Redis.Set(c.Request.Context(), "test", "test", 60*time.Second)
+	//global.Redis.Set(c.Request.Context(), "test", "test", 60*time.Second)
 	//time.Sleep(60 * time.Second)
+
 	utils.Logs(map[string]interface{}{
 		"page_num":  request.PageNum,
 		"page_size": request.PageSize,
 	}, logrus.InfoLevel, "这是一个测试", c)
 
-	test.SuccessJson(c, SuccessCode, "success", request)
+	total, list, err := models.Test{}.GetList("test", request.PageNum, request.PageSize)
+	if err != nil {
+		test.ErrorJson(c, ServerErrorCode, err.Error())
+		return
+	}
+
+	test.SuccessJson(c, SuccessCode, "success", map[string]interface{}{
+		"total": total,
+		"list":  list,
+	})
 }

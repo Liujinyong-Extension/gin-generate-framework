@@ -47,3 +47,5 @@ type IndexRequest struct {
 type detailRequest struct {
 	Id int `form:"id" validate:"required,number"`
 }
+
+//TODO 想想怎么实现增删改查集合到一起  ai给的建议是用反射
