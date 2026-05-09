@@ -5,6 +5,7 @@ import (
 	"gin-generate-framework/app/models"
 	"gin-generate-framework/app/validates"
 	"gin-generate-framework/utils"
+	"math"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -48,7 +49,19 @@ func (test TestController) Index(c *gin.Context) {
 	}
 
 	test.SuccessJson(c, SuccessCode, "success", map[string]interface{}{
-		"total": total,
-		"list":  list,
+		"total_page": math.Ceil(float64(total) / float64(request.PageSize)),
+		"list":       list,
+		"page_num":   request.PageNum,
+		"page_size":  request.PageSize,
 	})
+}
+
+func (test TestController) Add(c *gin.Context) {
+
+}
+func (test TestController) Update(c *gin.Context) {
+
+}
+func (test TestController) Delete(c *gin.Context) {
+
 }

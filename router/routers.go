@@ -15,6 +15,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(middleware.AccessLogMiddleware())
 	r.Use(middleware.ErrorHandler())
 	r.Use(gin.Recovery())
+	//注冊test方法集
 	api.TestApi(r)
 	return r
 }
