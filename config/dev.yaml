@@ -5,11 +5,11 @@ database:
   host: 127.0.0.1
   port: 3306
   name: gin
-  user: root
+  user: gin
   password: 123456
 
 redis:
   host: 127.0.0.1
-  port: 6379
+  port: 6381
   password: liuo0o0o0
   db: 0
