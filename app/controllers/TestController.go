@@ -6,6 +6,9 @@ import (
 	"gin-generate-framework/app/validates"
 	"gin-generate-framework/utils"
 	"math"
+	"net/http"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
@@ -57,11 +60,76 @@ func (test TestController) Index(c *gin.Context) {
 }
 
 func (test TestController) Add(c *gin.Context) {
+	fmt.Println("add")
 
+	urlMap := map[string]string{
+		"url1": "http://127.0.0.1:9090/update",
+		"url2": "http://127.0.0.1:9090/update",
+	}
+	resArr := []int{}
+
+	for _, v := range urlMap {
+		sendHttp := test.SendHttp(v)
+		resArr = append(resArr, sendHttp)
+	}
+
+	fmt.Printf("成功返回: %d\n", resArr)
+}
+func (test TestController) SendHttp(str string) int {
+	// 发送PUT请求到/update端点
+	req, err := http.NewRequest("PUT", str, nil)
+	if err != nil {
+		fmt.Printf("创建请求失败: %v\n", err)
+		return 0
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Printf("请求失败: %v\n", err)
+		return 0
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode
 }
 func (test TestController) Update(c *gin.Context) {
-
+	time.Sleep(5 * time.Second)
+	fmt.Println("update")
+	test.SuccessJson(c, SuccessCode, "success", nil)
 }
-func (test TestController) Delete(c *gin.Context) {
 
+func (test TestController) Delete(c *gin.Context) {
+	fmt.Println("delete")
+
+	urlMap := map[string]string{
+		"url1": "http://127.0.0.1:9090/update",
+		"url2": "http://127.0.0.1:9090/update",
+	}
+
+	// 使用channel收集结果
+	resChan := make(chan int, len(urlMap))
+	var wg sync.WaitGroup
+
+	// 并发发送请求
+	for _, url := range urlMap {
+		wg.Add(1)
+		go func(u string) {
+			defer wg.Done()
+			resChan <- test.SendHttp(u)
+		}(url)
+	}
+
+	// 等待所有goroutine完成
+	go func() {
+		wg.Wait()
+		close(resChan)
+	}()
+
+	// 收集结果
+	resArr := []int{}
+	for res := range resChan {
+		resArr = append(resArr, res)
+	}
+
+	fmt.Printf("并发请求成功返回: %d\n", resArr)
 }

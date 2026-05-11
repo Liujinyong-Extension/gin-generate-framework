@@ -42,7 +42,7 @@ func InitViper() {
 	fmt.Println("当前的环境是:", env)
 	viper.SetConfigName(env)
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("core/config")
+	viper.AddConfigPath("config")
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("fatal error reading config file: %w", err))
