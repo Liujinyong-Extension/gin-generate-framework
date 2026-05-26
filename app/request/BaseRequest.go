@@ -14,8 +14,9 @@ var fieldNameRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 分页请求参数
 */
 type PageRequest struct {
-	PageNum  int `form:"page_num" validate:"required,number,min=1"`
-	PageSize int `form:"page_size" validate:"required,number,min=1"`
+	PageNum    int              `form:"page_num" validate:"required,number,min=1"`
+	PageSize   int              `form:"page_size" validate:"required,number,min=1"`
+	Conditions []QueryCondition // 自定义查询条件，由 ParseConditions 解析填充
 }
 
 /*

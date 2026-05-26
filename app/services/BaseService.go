@@ -15,7 +15,7 @@ type BaseService[M Model] struct {
 }
 
 // GetList 通用分页列表查询，支持自定义条件筛选
-func (BaseService[M]) GetList(req request.IndexRequest) (int64, []interface{}, error) {
+func (BaseService[M]) GetList(req request.PageRequest) (int64, []interface{}, error) {
 	var m M
 	total, list, err := m.GetList(m.TableName(), req.PageNum, req.PageSize, req.Conditions)
 	if err != nil {
@@ -23,7 +23,7 @@ func (BaseService[M]) GetList(req request.IndexRequest) (int64, []interface{}, e
 	}
 	return total, list, nil
 }
-func (BaseService[M]) GetListNoPage(req request.IndexRequest) (int64, []interface{}, error) {
+func (BaseService[M]) GetListNoPage(req request.PageRequest) (int64, []interface{}, error) {
 	var m M
 	total, list, err := m.GetListNoPage(m.TableName(), req.Conditions)
 	if err != nil {

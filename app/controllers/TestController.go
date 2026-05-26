@@ -20,7 +20,7 @@ type TestController struct {
 }
 
 func (test TestController) Index(c *gin.Context) {
-	var requestParam request.IndexRequest
+	var requestParam request.PageRequest
 
 	if err := c.ShouldBindQuery(&requestParam); err != nil {
 		fmt.Println(err)
