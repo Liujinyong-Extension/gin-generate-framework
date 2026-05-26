@@ -1,6 +1,10 @@
 package controllers
 
-import "github.com/gin-gonic/gin"
+import (
+	"math"
+
+	"github.com/gin-gonic/gin"
+)
 
 type BaseController struct {
 }
@@ -40,12 +44,11 @@ func (b *BaseController) ErrorJson(c *gin.Context, code int, message string) {
 	})
 }
 
-type IndexRequest struct {
-	PageNum  int `form:"page_num" validate:"required,number,min=1"`
-	PageSize int `form:"page_size" validate:"required,number,min=1"`
+func (b *BaseController) ListSuccessJson(c *gin.Context, code int, message string, data interface{}, total int64, page_num int, page_size int) {
+	b.SuccessJson(c, code, message, map[string]interface{}{
+		"total_page": math.Ceil(float64(total) / float64(page_size)),
+		"list":       data,
+		"page_num":   page_num,
+		"page_size":  page_size,
+	})
 }
-type detailRequest struct {
-	Id int `form:"id" validate:"required,number"`
-}
-
-//TODO 想想怎么实现增删改查集合到一起  ai给的建议是用反射

@@ -11,8 +11,7 @@ type BaseModel struct {
 	DeletedAt *time.Time `gorm:"index"`
 }
 
-// todo 研究一下sql怎么写
-func (BaseModel BaseModel) GetList(table string, page int, page_size int) (int, []interface{}, error) {
+func (BaseModel BaseModel) GetList(table string, page int, page_size int) (int64, []interface{}, error) {
 	var list []map[string]interface{}
 	var total int64
 
@@ -31,5 +30,5 @@ func (BaseModel BaseModel) GetList(table string, page int, page_size int) (int, 
 		result[i] = item
 	}
 
-	return int(total), result, err
+	return int64(total), result, err
 }

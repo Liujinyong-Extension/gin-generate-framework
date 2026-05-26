@@ -12,5 +12,6 @@ func TestApi(r *gin.Engine) *gin.Engine {
 	r.POST("/add", controllers.TestController{}.Add)
 	r.PUT("/update", controllers.TestController{}.Update)
 	r.DELETE("/delete", controllers.TestController{}.Delete)
+
 	return r
 }

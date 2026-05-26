@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"gin-generate-framework/app/models"
+	"gin-generate-framework/app/request"
+	"gin-generate-framework/app/services"
 	"gin-generate-framework/app/validates"
 	"gin-generate-framework/utils"
 	"math"
@@ -17,12 +18,9 @@ import (
 type TestController struct {
 	BaseController
 }
-type TestIndexRequest struct {
-	IndexRequest
-}
 
 func (test TestController) Index(c *gin.Context) {
-	var request TestIndexRequest
+	var request request.IndexRequest
 
 	if err := c.ShouldBindQuery(&request); err != nil {
 		fmt.Println(err)
@@ -37,43 +35,24 @@ func (test TestController) Index(c *gin.Context) {
 			return
 		}
 	}
-	//global.Redis.Set(c.Request.Context(), "test", "test", 60*time.Second)
-	//time.Sleep(60 * time.Second)
 
 	utils.Logs(map[string]interface{}{
 		"page_num":  request.PageNum,
 		"page_size": request.PageSize,
 	}, logrus.InfoLevel, "这是一个测试", c)
 
-	total, list, err := models.Test{}.GetList("test", request.PageNum, request.PageSize)
+	total, list, err := services.TestService{}.GetList(request)
+	//models.Test{}.GetList("test", request.PageNum, request.PageSize)
 	if err != nil {
 		test.ErrorJson(c, ServerErrorCode, err.Error())
 		return
 	}
 
-	test.SuccessJson(c, SuccessCode, "success", map[string]interface{}{
-		"total_page": math.Ceil(float64(total) / float64(request.PageSize)),
-		"list":       list,
-		"page_num":   request.PageNum,
-		"page_size":  request.PageSize,
-	})
+	test.ListSuccessJson(c, SuccessCode, "success", list, int64(math.Ceil(float64(total)/float64(request.PageSize))), request.PageNum, request.PageSize)
 }
 
 func (test TestController) Add(c *gin.Context) {
-	fmt.Println("add")
 
-	urlMap := map[string]string{
-		"url1": "http://127.0.0.1:9090/update",
-		"url2": "http://127.0.0.1:9090/update",
-	}
-	resArr := []int{}
-
-	for _, v := range urlMap {
-		sendHttp := test.SendHttp(v)
-		resArr = append(resArr, sendHttp)
-	}
-
-	fmt.Printf("成功返回: %d\n", resArr)
 }
 func (test TestController) SendHttp(str string) int {
 	// 发送PUT请求到/update端点
