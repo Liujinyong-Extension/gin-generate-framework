@@ -17,6 +17,11 @@ type BaseModel struct {
 	DeletedAt *time.Time `gorm:"index"`
 }
 
+func (BaseModel BaseModel) Add(table string, data map[string]interface{}) {
+	db := global.GormDB.Table(table)
+	db.Create(data)
+
+}
 func (BaseModel BaseModel) GetList(table string, page int, page_size int, conditions []request.QueryCondition) (int64, []interface{}, error) {
 	var list []map[string]interface{}
 	var total int64
@@ -41,7 +46,32 @@ func (BaseModel BaseModel) GetList(table string, page int, page_size int, condit
 		result[i] = item
 	}
 
-	return int64(total), result, err
+	return total, result, err
+}
+func (BaseModel BaseModel) GetListNoPage(table string, conditions []request.QueryCondition) (int64, []interface{}, error) {
+	var list []map[string]interface{}
+	var total int64
+
+	db := global.GormDB.Table(table)
+
+	// 应用自定义查询条件
+	db = applyConditions(db, conditions)
+
+	err := db.Count(&total).Error
+	if err != nil {
+		return 0, nil, err
+	}
+
+	// Get paginated data
+	err = db.Find(&list).Error
+
+	// Convert to []interface{}
+	result := make([]interface{}, len(list))
+	for i, item := range list {
+		result[i] = item
+	}
+
+	return total, result, err
 }
 
 // applyConditions 将条件应用到 GORM 查询中

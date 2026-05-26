@@ -6,6 +6,8 @@ import "gin-generate-framework/app/request"
 type Model interface {
 	TableName() string
 	GetList(table string, page int, pageSize int, conditions []request.QueryCondition) (int64, []interface{}, error)
+	GetListNoPage(table string, conditions []request.QueryCondition) (int64, []interface{}, error)
+	//Add(table string, conditions []request.QueryCondition) (int64, []interface{}, error)
 }
 
 // BaseService 泛型基础服务，M 为具体的模型类型
@@ -20,4 +22,15 @@ func (BaseService[M]) GetList(req request.IndexRequest) (int64, []interface{}, e
 		return 0, nil, err
 	}
 	return total, list, nil
+}
+func (BaseService[M]) GetListNoPage(req request.IndexRequest) (int64, []interface{}, error) {
+	var m M
+	total, list, err := m.GetListNoPage(m.TableName(), req.Conditions)
+	if err != nil {
+		return 0, nil, err
+	}
+	return total, list, nil
+}
+func (BaseService[M]) Add(req request.IdRequest) (int64, error) {
+	return 0, nil
 }

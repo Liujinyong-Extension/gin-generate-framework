@@ -55,6 +55,20 @@ func (test TestController) Index(c *gin.Context) {
 }
 
 func (test TestController) Add(c *gin.Context) {
+	var requestParam request.AddRequest
+	if err := c.ShouldBindJSON(&requestParam); err != nil {
+		fmt.Println(err)
+		test.ErrorJson(c, ParamError, err.Error())
+		return
+	}
+	if errors := validates.ValidateStruct(&requestParam); errors != nil {
+		fmt.Println(errors)
+		for k, v := range errors {
+			test.ErrorJson(c, ParamError, k+": "+v)
+			return
+		}
+	}
+	services.TestService{}.Add(requestParam)
 
 }
 func (test TestController) SendHttp(str string) int {
