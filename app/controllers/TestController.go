@@ -20,15 +20,15 @@ type TestController struct {
 }
 
 func (test TestController) Index(c *gin.Context) {
-	var request request.IndexRequest
+	var requestParam request.IndexRequest
 
-	if err := c.ShouldBindQuery(&request); err != nil {
+	if err := c.ShouldBindQuery(&requestParam); err != nil {
 		fmt.Println(err)
 		test.ErrorJson(c, ParamError, err.Error())
 		return
 	}
 
-	if errors := validates.ValidateStruct(&request); errors != nil {
+	if errors := validates.ValidateStruct(&requestParam); errors != nil {
 		fmt.Println(errors)
 		for k, v := range errors {
 			test.ErrorJson(c, ParamError, k+": "+v)
@@ -37,18 +37,17 @@ func (test TestController) Index(c *gin.Context) {
 	}
 
 	utils.Logs(map[string]interface{}{
-		"page_num":  request.PageNum,
-		"page_size": request.PageSize,
+		"page_num":  requestParam.PageNum,
+		"page_size": requestParam.PageSize,
 	}, logrus.InfoLevel, "这是一个测试", c)
 
-	total, list, err := services.TestService{}.GetList(request)
-	//models.Test{}.GetList("test", request.PageNum, request.PageSize)
+	total, list, err := services.TestService{}.GetList(requestParam)
+
 	if err != nil {
 		test.ErrorJson(c, ServerErrorCode, err.Error())
 		return
 	}
-
-	test.ListSuccessJson(c, SuccessCode, "success", list, int64(math.Ceil(float64(total)/float64(request.PageSize))), request.PageNum, request.PageSize)
+	test.ListSuccessJson(c, SuccessCode, "success", list, int64(math.Ceil(float64(total)/float64(requestParam.PageSize))), requestParam.PageNum, requestParam.PageSize)
 }
 
 func (test TestController) Add(c *gin.Context) {
