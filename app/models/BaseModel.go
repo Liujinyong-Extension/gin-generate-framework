@@ -32,3 +32,6 @@ func (BaseModel BaseModel) GetList(table string, page int, page_size int) (int64
 
 	return int64(total), result, err
 }
+func (BaseModel BaseModel) BuildListQuery() {
+
+}
