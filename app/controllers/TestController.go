@@ -36,9 +36,13 @@ func (test TestController) Index(c *gin.Context) {
 		}
 	}
 
+	// 从 URL 中解析自定义查询条件（排除分页等已知参数）
+	requestParam.Conditions = request.ParseConditions(c.Request.URL.Query(), "page_num", "page_size")
+
 	utils.Logs(map[string]interface{}{
-		"page_num":  requestParam.PageNum,
-		"page_size": requestParam.PageSize,
+		"page_num":   requestParam.PageNum,
+		"page_size":  requestParam.PageSize,
+		"conditions": requestParam.Conditions,
 	}, logrus.InfoLevel, "这是一个测试", c)
 
 	total, list, err := services.TestService{}.GetList(requestParam)
