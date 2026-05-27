@@ -36,6 +36,32 @@ func (BaseModel BaseModel) Add(table string, data map[string]interface{}) (int64
 	}
 	return tx.RowsAffected, nil
 }
+func (BaseModel BaseModel) Update(table string, data map[string]interface{}) (int64, error) {
+	// 从 data 中提取 id，然后从更新数据中移除
+	id, ok := data["id"]
+	if !ok {
+		return 0, fmt.Errorf("缺少id参数")
+	}
+	delete(data, "id")
+
+	db := global.GormDB.Table(table)
+
+	// 判断记录是否存在
+	var count int64
+	if err := db.Where("id = ?", id).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	if count == 0 {
+		return 0, fmt.Errorf("记录不存在")
+	}
+
+	// 执行更新
+	tx := db.Updates(data)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+	return tx.RowsAffected, nil
+}
 func (BaseModel BaseModel) GetList(table string, page int, page_size int, conditions []request.QueryCondition) (int64, []interface{}, error) {
 	var list []map[string]interface{}
 	var total int64

@@ -90,29 +90,34 @@ func (test TestController) Add(c *gin.Context) {
 		"affected": affected,
 	})
 }
-func (test TestController) SendHttp(str string) int {
-	// 发送PUT请求到/update端点
-	req, err := http.NewRequest("PUT", str, nil)
-	if err != nil {
-		fmt.Printf("创建请求失败: %v\n", err)
-		return 0
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		fmt.Printf("请求失败: %v\n", err)
-		return 0
-	}
-	defer resp.Body.Close()
-	return resp.StatusCode
-}
 func (test TestController) Update(c *gin.Context) {
-	time.Sleep(5 * time.Second)
-	fmt.Println("update")
-	test.SuccessJson(c, SuccessCode, "success", nil)
+	var updateReq request.TestUpdateRequest
+	if err := c.ShouldBindJSON(&updateReq); err != nil {
+		fmt.Println(err, 1)
+		test.ErrorJson(c, ParamError, err.Error())
+		return
+	}
+	if errors := validates.ValidateStruct(&updateReq); errors != nil {
+		fmt.Println(errors, 2)
+		for k, v := range errors {
+			test.ErrorJson(c, ParamError, k+": "+v)
+			return
+		}
+	}
+	data, _ := json.Marshal(updateReq)
+	var reqMap map[string]interface{}
+	json.Unmarshal(data, &reqMap)
+	now := time.Now().Format("2006-01-02 15:04:05")
+	reqMap["updated_at"] = now
+	affected, err := services.TestService{}.Update(reqMap)
+	if err != nil {
+		test.ErrorJson(c, ServerErrorCode, err.Error())
+		return
+	}
+	test.SuccessJson(c, SuccessCode, "success", map[string]interface{}{
+		"affected": affected,
+	})
 }
-
 func (test TestController) Delete(c *gin.Context) {
 	fmt.Println("delete")
 
@@ -147,4 +152,22 @@ func (test TestController) Delete(c *gin.Context) {
 	}
 
 	fmt.Printf("并发请求成功返回: %d\n", resArr)
+}
+
+func (test TestController) SendHttp(str string) int {
+	// 发送PUT请求到/update端点
+	req, err := http.NewRequest("PUT", str, nil)
+	if err != nil {
+		fmt.Printf("创建请求失败: %v\n", err)
+		return 0
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Printf("请求失败: %v\n", err)
+		return 0
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode
 }

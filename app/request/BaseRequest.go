@@ -6,9 +6,6 @@ import (
 	"regexp"
 )
 
-// fieldNameRegex 校验字段名安全，防止 SQL 注入
-var fieldNameRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
-
 /*
 *
 分页请求参数
@@ -24,8 +21,11 @@ type PageRequest struct {
 id请求参数
 */
 type IdRequest struct {
-	Id int `form:"id" validate:"required,number,min=1"`
+	Id int `json:"id" form:"id" validate:"required,number,min=1"`
 }
+
+// fieldNameRegex 校验字段名安全，防止 SQL 注入
+var fieldNameRegex = regexp.MustCompile(`^[a-zA-Z_][a-zA-Z0-9_]*$`)
 
 // QueryCondition 查询条件，从 URL 参数中解析
 // 格式：?field=["operator","value"]
