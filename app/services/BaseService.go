@@ -9,6 +9,7 @@ type Model interface {
 	GetListNoPage(table string, conditions []request.QueryCondition) (int64, []interface{}, error)
 	Add(table string, data map[string]interface{}) (int64, error)
 	Update(table string, data map[string]interface{}) (int64, error)
+	Delete(table string, id int64) (int64, error)
 }
 
 // BaseService 泛型基础服务，M 为具体的模型类型
@@ -39,4 +40,8 @@ func (BaseService[M]) Add(req map[string]interface{}) (int64, error) {
 func (BaseService[M]) Update(req map[string]interface{}) (int64, error) {
 	var m M
 	return m.Update(m.TableName(), req)
+}
+func (BaseService[M]) Delete(req request.IdRequest) (int64, error) {
+	var m M
+	return m.Delete(m.TableName(), int64(req.Id))
 }

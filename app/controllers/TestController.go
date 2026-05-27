@@ -9,7 +9,6 @@ import (
 	"gin-generate-framework/utils"
 	"math"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -119,39 +118,27 @@ func (test TestController) Update(c *gin.Context) {
 	})
 }
 func (test TestController) Delete(c *gin.Context) {
-	fmt.Println("delete")
-
-	urlMap := map[string]string{
-		"url1": "http://127.0.0.1:9090/update",
-		"url2": "http://127.0.0.1:9090/update",
+	var deleteReq request.IdRequest
+	if err := c.ShouldBindJSON(&deleteReq); err != nil {
+		fmt.Println(err, 1)
+		test.ErrorJson(c, ParamError, err.Error())
+		return
 	}
-
-	// 使用channel收集结果
-	resChan := make(chan int, len(urlMap))
-	var wg sync.WaitGroup
-
-	// 并发发送请求
-	for _, url := range urlMap {
-		wg.Add(1)
-		go func(u string) {
-			defer wg.Done()
-			resChan <- test.SendHttp(u)
-		}(url)
+	if errors := validates.ValidateStruct(&deleteReq); errors != nil {
+		fmt.Println(errors, 2)
+		for k, v := range errors {
+			test.ErrorJson(c, ParamError, k+": "+v)
+			return
+		}
 	}
-
-	// 等待所有goroutine完成
-	go func() {
-		wg.Wait()
-		close(resChan)
-	}()
-
-	// 收集结果
-	resArr := []int{}
-	for res := range resChan {
-		resArr = append(resArr, res)
+	affected, err := services.TestService{}.Delete(deleteReq)
+	if err != nil {
+		test.ErrorJson(c, ServerErrorCode, err.Error())
+		return
 	}
-
-	fmt.Printf("并发请求成功返回: %d\n", resArr)
+	test.SuccessJson(c, SuccessCode, "success", map[string]interface{}{
+		"affected": affected,
+	})
 }
 
 func (test TestController) SendHttp(str string) int {

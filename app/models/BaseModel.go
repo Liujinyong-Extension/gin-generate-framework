@@ -56,7 +56,22 @@ func (BaseModel BaseModel) Update(table string, data map[string]interface{}) (in
 	}
 
 	// 执行更新
-	tx := db.Updates(data)
+	tx := db.Session(&gorm.Session{}).Where("id = ?", id).Updates(data)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+	return tx.RowsAffected, nil
+}
+func (BaseModel BaseModel) Delete(table string, id int64) (int64, error) {
+	db := global.GormDB.Table(table)
+	var count int64
+	if err := db.Where("id = ?", id).Count(&count).Error; err != nil {
+		return 0, err
+	}
+	if count == 0 {
+		return 0, fmt.Errorf("记录不存在")
+	}
+	tx := db.Delete(nil)
 	if tx.Error != nil {
 		return 0, tx.Error
 	}
