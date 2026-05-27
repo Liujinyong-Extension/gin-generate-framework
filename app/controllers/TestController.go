@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"encoding/json"
 	"fmt"
 	"gin-generate-framework/app/request"
 	"gin-generate-framework/app/services"
@@ -55,21 +56,39 @@ func (test TestController) Index(c *gin.Context) {
 }
 
 func (test TestController) Add(c *gin.Context) {
-	var requestParam request.AddRequest
+	var requestParam request.TestAddRequest
 	if err := c.ShouldBindJSON(&requestParam); err != nil {
-		fmt.Println(err)
+		fmt.Println(err, 1)
 		test.ErrorJson(c, ParamError, err.Error())
 		return
 	}
 	if errors := validates.ValidateStruct(&requestParam); errors != nil {
-		fmt.Println(errors)
+		fmt.Println(errors, 2)
 		for k, v := range errors {
 			test.ErrorJson(c, ParamError, k+": "+v)
 			return
 		}
 	}
-	services.TestService{}.Add(requestParam)
+	data, _ := json.Marshal(requestParam)
+	var reqMap map[string]interface{}
+	json.Unmarshal(data, &reqMap)
+	now := time.Now().Format("2006-01-02 15:04:05")
 
+	if requestParam.CreatedAt == nil {
+		reqMap["created_at"] = now
+	}
+	if requestParam.UpdatedAt == nil {
+		reqMap["updated_at"] = now
+	}
+	affected, err := services.TestService{}.Add(reqMap)
+
+	if err != nil {
+		test.ErrorJson(c, ServerErrorCode, err.Error())
+		return
+	}
+	test.SuccessJson(c, SuccessCode, "success", map[string]interface{}{
+		"affected": affected,
+	})
 }
 func (test TestController) SendHttp(str string) int {
 	// 发送PUT请求到/update端点

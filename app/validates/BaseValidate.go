@@ -20,6 +20,7 @@ var errorMessages = map[string]string{
 	"len":      "长度必须为 %s",
 	"numeric":  "必须为数字",
 	"url":      "URL格式不正确",
+	"oneof":    "必须为 %s 之一",
 }
 
 // 验证结构体并返回格式化的错误

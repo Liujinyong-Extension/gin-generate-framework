@@ -1,1 +1,0 @@
-ALTER TABLE `gin`.`test` ADD INDEX `idx_title`(`title`);

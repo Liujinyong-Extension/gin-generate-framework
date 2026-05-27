@@ -17,10 +17,24 @@ type BaseModel struct {
 	DeletedAt *time.Time `gorm:"index"`
 }
 
-func (BaseModel BaseModel) Add(table string, data map[string]interface{}) {
+func (BaseModel BaseModel) Add(table string, data map[string]interface{}) (int64, error) {
 	db := global.GormDB.Table(table)
-	db.Create(data)
-
+	tx := db.Create(data)
+	if tx.Error != nil {
+		return 0, tx.Error
+	}
+	// 从 map 中获取 GORM 回填的自增 ID
+	if id, ok := data["id"]; ok {
+		switch v := id.(type) {
+		case int64:
+			return v, nil
+		case float64:
+			return int64(v), nil
+		case int:
+			return int64(v), nil
+		}
+	}
+	return tx.RowsAffected, nil
 }
 func (BaseModel BaseModel) GetList(table string, page int, page_size int, conditions []request.QueryCondition) (int64, []interface{}, error) {
 	var list []map[string]interface{}
