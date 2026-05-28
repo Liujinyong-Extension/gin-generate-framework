@@ -1,10 +1,10 @@
 package base
 
 import (
-	"fmt"
 	"gin-generate-framework/app/controllers"
 	"gin-generate-framework/app/request"
 	"gin-generate-framework/app/services"
+	"gin-generate-framework/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,8 +16,6 @@ type UserController struct {
 func (UserController UserController) Login(c *gin.Context) {
 	var LoginReq request.UserLoginRequest
 	UserController.CheckInput(c, &LoginReq)
-
-	fmt.Println(LoginReq, 2)
 	userService := services.UserService{}
 	one, err := userService.GetOne(request.WhereRequest{
 		Conditions: []request.QueryCondition{
@@ -33,6 +31,15 @@ func (UserController UserController) Login(c *gin.Context) {
 		UserController.ErrorJson(c, controllers.ErrorCode, "用户不存在")
 		return
 	}
+	userMap, ok := one.(map[string]interface{})
+	if !ok {
+		UserController.ErrorJson(c, controllers.ServerErrorCode, "数据类型错误")
+		return
+	}
+	if userMap["password"] != utils.MD5(LoginReq.Password) {
+		UserController.ErrorJson(c, controllers.ErrorCode, "密码错误")
+		return
+	}
 
-	//UserController.SuccessJson(c, controllers.SuccessCode, "success", one)
+	UserController.SuccessJson(c, controllers.SuccessCode, "登录成功", userMap)
 }
