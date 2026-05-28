@@ -4,4 +4,5 @@ var ApiRouterCore = new(ApiRouter)
 
 type ApiRouter struct {
 	TestApi
+	UserApi
 }

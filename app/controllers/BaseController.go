@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"fmt"
+	"gin-generate-framework/app/validates"
 	"math"
 
 	"github.com/gin-gonic/gin"
@@ -51,4 +53,31 @@ func (b *BaseController) ListSuccessJson(c *gin.Context, code int, message strin
 		"page_num":   page_num,
 		"page_size":  page_size,
 	})
+}
+
+func (b *BaseController) CheckInput(c *gin.Context, req interface{}) {
+	method := c.Request.Method
+
+	var err error
+
+	if method == "GET" {
+		err = c.ShouldBindQuery(req)
+	} else {
+		err = c.ShouldBindJSON(req)
+	}
+
+	if err != nil {
+		fmt.Println(err, 1)
+		b.ErrorJson(c, ParamError, err.Error())
+		return
+	}
+
+	if errors := validates.ValidateStruct(req); errors != nil {
+		fmt.Println(errors, 2)
+		for k, v := range errors {
+			b.ErrorJson(c, ParamError, k+": "+v)
+			return
+		}
+	}
+
 }

@@ -128,6 +128,19 @@ func (BaseModel BaseModel) GetListNoPage(table string, conditions []request.Quer
 
 	return total, result, err
 }
+func (BaseModel BaseModel) GetOne(table string, conditions []request.QueryCondition) (interface{}, error) {
+	var results []map[string]interface{}
+	db := global.GormDB.Table(table)
+	db = applyConditions(db, conditions)
+	err := db.Limit(1).Find(&results).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(results) == 0 {
+		return nil, nil
+	}
+	return results[0], nil
+}
 
 // applyConditions 将条件应用到 GORM 查询中
 // 支持的操作符：like, eq, ne, gt, gte, lt, lte, in

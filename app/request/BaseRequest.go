@@ -16,6 +16,10 @@ type PageRequest struct {
 	Conditions []QueryCondition // 自定义查询条件，由 ParseConditions 解析填充
 }
 
+type WhereRequest struct {
+	Conditions []QueryCondition // 自定义查询条件，由 ParseConditions 解析填充
+}
+
 /*
 *
 id请求参数

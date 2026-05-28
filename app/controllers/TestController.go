@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"gin-generate-framework/app/request"
 	"gin-generate-framework/app/services"
-	"gin-generate-framework/app/validates"
 	"gin-generate-framework/utils"
 	"math"
 	"net/http"
@@ -21,20 +20,7 @@ type TestController struct {
 
 func (test TestController) Index(c *gin.Context) {
 	var requestParam request.PageRequest
-
-	if err := c.ShouldBindQuery(&requestParam); err != nil {
-		fmt.Println(err)
-		test.ErrorJson(c, ParamError, err.Error())
-		return
-	}
-
-	if errors := validates.ValidateStruct(&requestParam); errors != nil {
-		fmt.Println(errors)
-		for k, v := range errors {
-			test.ErrorJson(c, ParamError, k+": "+v)
-			return
-		}
-	}
+	test.CheckInput(c, &requestParam)
 
 	// 从 URL 中解析自定义查询条件（排除分页等已知参数）
 	requestParam.Conditions = request.ParseConditions(c.Request.URL.Query(), "page_num", "page_size")
@@ -56,18 +42,8 @@ func (test TestController) Index(c *gin.Context) {
 
 func (test TestController) Add(c *gin.Context) {
 	var requestParam request.TestAddRequest
-	if err := c.ShouldBindJSON(&requestParam); err != nil {
-		fmt.Println(err, 1)
-		test.ErrorJson(c, ParamError, err.Error())
-		return
-	}
-	if errors := validates.ValidateStruct(&requestParam); errors != nil {
-		fmt.Println(errors, 2)
-		for k, v := range errors {
-			test.ErrorJson(c, ParamError, k+": "+v)
-			return
-		}
-	}
+	test.CheckInput(c, &requestParam)
+
 	data, _ := json.Marshal(requestParam)
 	var reqMap map[string]interface{}
 	json.Unmarshal(data, &reqMap)
@@ -91,18 +67,7 @@ func (test TestController) Add(c *gin.Context) {
 }
 func (test TestController) Update(c *gin.Context) {
 	var updateReq request.TestUpdateRequest
-	if err := c.ShouldBindJSON(&updateReq); err != nil {
-		fmt.Println(err, 1)
-		test.ErrorJson(c, ParamError, err.Error())
-		return
-	}
-	if errors := validates.ValidateStruct(&updateReq); errors != nil {
-		fmt.Println(errors, 2)
-		for k, v := range errors {
-			test.ErrorJson(c, ParamError, k+": "+v)
-			return
-		}
-	}
+	test.CheckInput(c, &updateReq)
 	data, _ := json.Marshal(updateReq)
 	var reqMap map[string]interface{}
 	json.Unmarshal(data, &reqMap)
@@ -119,18 +84,7 @@ func (test TestController) Update(c *gin.Context) {
 }
 func (test TestController) Delete(c *gin.Context) {
 	var deleteReq request.IdRequest
-	if err := c.ShouldBindJSON(&deleteReq); err != nil {
-		fmt.Println(err, 1)
-		test.ErrorJson(c, ParamError, err.Error())
-		return
-	}
-	if errors := validates.ValidateStruct(&deleteReq); errors != nil {
-		fmt.Println(errors, 2)
-		for k, v := range errors {
-			test.ErrorJson(c, ParamError, k+": "+v)
-			return
-		}
-	}
+	test.CheckInput(c, &deleteReq)
 	affected, err := services.TestService{}.Delete(deleteReq)
 	if err != nil {
 		test.ErrorJson(c, ServerErrorCode, err.Error())

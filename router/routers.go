@@ -22,8 +22,9 @@ func SetupRouter() *gin.Engine {
 	ApiRouter := api.ApiRouterCore
 
 	{
-		//注冊test方法集路由
+		//注冊方法集路由
 		ApiRouter.InitTestApi(r)
+		ApiRouter.InitUserApi(r)
 
 	}
 	return r

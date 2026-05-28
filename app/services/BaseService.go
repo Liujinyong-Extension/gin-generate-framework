@@ -10,6 +10,7 @@ type Model interface {
 	Add(table string, data map[string]interface{}) (int64, error)
 	Update(table string, data map[string]interface{}) (int64, error)
 	Delete(table string, id int64) (int64, error)
+	GetOne(table string, conditions []request.QueryCondition) (interface{}, error)
 }
 
 // BaseService 泛型基础服务，M 为具体的模型类型
@@ -32,6 +33,14 @@ func (BaseService[M]) GetListNoPage(req request.PageRequest) (int64, []interface
 		return 0, nil, err
 	}
 	return total, list, nil
+}
+func (BaseService[M]) GetOne(req request.WhereRequest) (interface{}, error) {
+	var m M
+	one, err := m.GetOne(m.TableName(), req.Conditions)
+	if err != nil {
+		return nil, err
+	}
+	return one, nil
 }
 func (BaseService[M]) Add(req map[string]interface{}) (int64, error) {
 	var m M
