@@ -13,3 +13,6 @@ redis:
   port: 6381
   password: liuo0o0o0
   db: 0
+
+jwt:
+  secret: 123456
