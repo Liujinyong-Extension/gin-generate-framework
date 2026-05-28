@@ -5,8 +5,11 @@ import (
 	"gin-generate-framework/app/request"
 	"gin-generate-framework/app/services"
 	"gin-generate-framework/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/spf13/viper"
 )
 
 type UserController struct {
@@ -14,6 +17,7 @@ type UserController struct {
 }
 
 func (UserController UserController) Login(c *gin.Context) {
+
 	var LoginReq request.UserLoginRequest
 	UserController.CheckInput(c, &LoginReq)
 	userService := services.UserService{}
@@ -41,5 +45,22 @@ func (UserController UserController) Login(c *gin.Context) {
 		return
 	}
 
-	UserController.SuccessJson(c, controllers.SuccessCode, "登录成功", userMap)
+	// 创建 JWT 声明
+	expirationTime := time.Now().Add(24 * time.Hour)
+
+	claims := &jwt.MapClaims{
+		"user_name": userMap["user_name"],
+		"exp":       expirationTime.Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	// 从配置读取 JWT 密钥
+	jwtKey := []byte(viper.GetString("jwt.secret"))
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		UserController.ErrorJson(c, controllers.ServerErrorCode, "生成Token失败")
+		return
+	}
+
+	UserController.SuccessJson(c, controllers.SuccessCode, "登录成功", gin.H{"token": tokenString, "user": userMap})
 }
