@@ -10,12 +10,21 @@ import (
 func SetupRouter() *gin.Engine {
 	//创建一个不加载默认中间件的engine
 	r := gin.New()
-	//加载错误处理中间件
-	r.Use(middleware.TraceMiddleware())
-	r.Use(middleware.AccessLogMiddleware())
-	r.Use(middleware.ErrorHandler())
-	r.Use(gin.Recovery())
-	//注冊test方法集
-	api.TestApi(r)
+	{
+		//加载错误处理中间件
+		r.Use(middleware.TraceMiddleware())
+		r.Use(middleware.AccessLogMiddleware())
+		r.Use(middleware.ErrorHandler())
+		r.Use(gin.Recovery())
+
+	}
+
+	ApiRouter := api.ApiRouterCore
+
+	{
+		//注冊test方法集路由
+		ApiRouter.InitTestApi(r)
+
+	}
 	return r
 }
