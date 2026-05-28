@@ -49,8 +49,8 @@ func (UserController UserController) Login(c *gin.Context) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 
 	claims := &jwt.MapClaims{
-		"user_name": userMap["user_name"],
-		"exp":       expirationTime.Unix(),
+		"user": userMap,
+		"exp":  expirationTime.Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
